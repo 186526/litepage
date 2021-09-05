@@ -1,0 +1,18 @@
+{
+  "name": "litepage",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^3.1.6"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "esbuild browser.js --bundle --outfile=./build/main.js --format=esm --minify --sourcemap",
+    "dev": "esbuild browser.js --bundle --outfile=demo/main.js --servedir=demo --format=esm"
+  },
+  "devDependencies": {
+    "esbuild": "^0.12.25"
+  }
+}
