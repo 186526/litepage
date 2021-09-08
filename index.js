@@ -83,12 +83,15 @@ export default class LitePage {
     this.uuidMap = {};
     this.eventMap = {};
     this._events = [];
+    this._components = {};
     this.props = new Proxy(props, {
       set: function (obj, prop, value) {
         const answer = app._events.reduce(
           (pre, cur, idx) => {
             if (cur.type === "setValue") {
               return cur.func(pre);
+            } else {
+              return pre;
             }
           },
           { obj, prop, value }
@@ -97,7 +100,27 @@ export default class LitePage {
         app.update();
         return true;
       },
+      get: function (obj, prop) {
+        const answer = app._events.reduce(
+          (pre, cur, idx) => {
+            if (cur.type === "getValue") {
+              return cur.func(pre);
+            } else {
+              return pre;
+            }
+          },
+          { obj, prop, value: obj[prop] }
+        );
+        return answer.value;
+      }
     });
+  }
+  extend(texts){
+    texts.forEach(text => {
+      const Component = new DOMParser().parseFromString(text, "text/html").body.firstChild;
+      this._components[Component.getAttribute("name").toUpperCase()] = Component;
+    });
+    return this;
   }
   on(events, callback) {
     this._events.push({
@@ -110,7 +133,22 @@ export default class LitePage {
     const TemplateDOM = new DOMParser().parseFromString(template, "text/html")
       .body;
     const dom = ElementFilter(TemplateDOM, (e) => {
-      if (!escape2Html(e.innerHTML).includes("%>")) {
+      if (e.getAttribute("use") === "component"){
+        const _components = this._components[e.tagName];
+        _components.getAttribute("arguments").split(",").forEach(arg => {
+          if(e.hasAttribute(arg)){
+            _components.innerHTML = escape2Html(_components.innerHTML.replaceAll(`arguments.${arg}`,e.getAttribute(arg)));
+          } else {
+            throw new Error(`Arguments ${arg} not found in template.`);
+          }
+          return true;
+        });
+        e.replaceWith(_components);
+        e.setAttribute("static","false");
+        return true;
+      }
+      const innerHTML = escape2Html(e.innerHTML);
+      if (!innerHTML.includes("%>") && !(innerHTML.includes("use=\"component\"") || innerHTML.includes("use='component'"))) {
         e.setAttribute("static", "true");
         return true;
       } else {
@@ -172,6 +210,9 @@ export default class LitePage {
               });
               this.eventMap[id][name] = func;
             }
+          }
+          if (currect.name === "mount") {
+            this.props[currect.value] = ele;
           }
         });
       }

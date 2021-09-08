@@ -15,6 +15,17 @@ globalThis.from = (sele) => {
   return escape2Html(a);
 };
 
+globalThis.fromAll = (sele) => {
+  const a = document.querySelectorAll(sele);
+  const answer = Array.from(a).map(e=>{
+    const text = e.outerHTML;
+    e.parentElement.removeChild(e);
+    return escape2Html(text);
+  });
+  return answer;
+}
+
 export default LitePage;
 
 export const from = globalThis.from;
+export const fromAll = globalThis.fromAll;
