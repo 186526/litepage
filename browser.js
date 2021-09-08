@@ -17,13 +17,13 @@ globalThis.from = (sele) => {
 
 globalThis.fromAll = (sele) => {
   const a = document.querySelectorAll(sele);
-  const answer = Array.from(a).map(e=>{
+  const answer = Array.from(a).map((e) => {
     const text = e.outerHTML;
     e.parentElement.removeChild(e);
     return escape2Html(text);
   });
   return answer;
-}
+};
 
 export default LitePage;
 

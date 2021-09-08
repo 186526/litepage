@@ -112,13 +112,16 @@ export default class LitePage {
           { obj, prop, value: obj[prop] }
         );
         return answer.value;
-      }
+      },
     });
   }
-  extend(texts){
-    texts.forEach(text => {
-      const Component = new DOMParser().parseFromString(text, "text/html").body.firstChild;
-      this._components[Component.getAttribute("name").toUpperCase()] = Component;
+  extend(texts) {
+    texts.forEach((text) => {
+      const Component = new DOMParser().parseFromString(text, "text/html").body
+        .firstChild;
+      this._components[
+        Component.getAttribute("name").toUpperCase()
+      ] = Component;
     });
     return this;
   }
@@ -133,22 +136,36 @@ export default class LitePage {
     const TemplateDOM = new DOMParser().parseFromString(template, "text/html")
       .body;
     const dom = ElementFilter(TemplateDOM, (e) => {
-      if (e.getAttribute("use") === "component"){
+      if (e.getAttribute("use") === "component") {
         const _components = this._components[e.tagName];
-        _components.getAttribute("arguments").split(",").forEach(arg => {
-          if(e.hasAttribute(arg)){
-            _components.innerHTML = escape2Html(_components.innerHTML.replaceAll(`arguments.${arg}`,e.getAttribute(arg)));
-          } else {
-            throw new Error(`Arguments ${arg} not found in template.`);
-          }
-          return true;
-        });
+        _components
+          .getAttribute("arguments")
+          .split(",")
+          .forEach((arg) => {
+            if (e.hasAttribute(arg)) {
+              _components.innerHTML = escape2Html(
+                _components.innerHTML.replaceAll(
+                  `arguments.${arg}`,
+                  e.getAttribute(arg)
+                )
+              );
+            } else {
+              throw new Error(`Arguments ${arg} not found in template.`);
+            }
+            return true;
+          });
         e.replaceWith(_components);
-        e.setAttribute("static","false");
+        e.setAttribute("static", "false");
         return true;
       }
       const innerHTML = escape2Html(e.innerHTML);
-      if (!innerHTML.includes("%>") && !(innerHTML.includes("use=\"component\"") || innerHTML.includes("use='component'"))) {
+      if (
+        !innerHTML.includes("%>") &&
+        !(
+          innerHTML.includes('use="component"') ||
+          innerHTML.includes("use='component'")
+        )
+      ) {
         e.setAttribute("static", "true");
         return true;
       } else {
