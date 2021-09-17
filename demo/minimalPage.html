@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<app></app>
+
+<template>
+    <div>
+        <p>Hello<%= Text %></p>
+        <input value="LitePage.js" mount="input" on:input="update" />
+    </div>
+</template>
+
+<script type="module">
+    import LitePage from "./main.js";
+    const App = new LitePage({
+        Text: null,
+        input: undefined,
+        update: (element, props) => {
+            props.Text = element.value === "" ? "." : `, ${element.value} !`;
+        }
+    });
+    App.create(from("template"));
+    App.mount("app");
+    App.props.update(App.props.input,App.props);
+</script>
+
+</html>
